@@ -62,7 +62,8 @@ class Login extends CI_Controller
 
 		if ($this->form_validation->run()) {
 			$user_name = $this->input->post('username');
-			$user_pass = sha1($this->input->post('password'));
+//			$user_pass = sha1($this->input->post('password'));
+			$user_pass = $this->input->post('password');
 
 			$data_array = array(
 				"username" => $user_name,
@@ -70,10 +71,11 @@ class Login extends CI_Controller
 			);
 
 			$make_call = callAPI('POST', 'http://localhost/CodeigniterRESTAPI/auth/login/', json_encode($data_array), false);
-			if($make_call)
-			print_r($make_call);
+			if(json_encode($data_array))
+				print_r(json_encode($make_call));
 
 			exit;
+
 			$response = json_decode($make_call, true);
 			$errors = $response['response']['errors'];
 			$data = $response['response']['data'][0];

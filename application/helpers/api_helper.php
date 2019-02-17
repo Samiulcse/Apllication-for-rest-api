@@ -25,15 +25,15 @@ function callAPI($method, $url, $data, $headers = false)
 
 	if (!$headers) {
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-			'Client-Servicefrontend-client',
-			'Auth-Keysimplerestapi',
-			'Content-Typeapplication/x-www-form-urlencoded',
+			'Client-Service:frontend-client',
+			'Auth-Key:simplerestapi',
+			'Content-Type:application/x-www-form-urlencoded',
 		));
 	} else {
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-			'Client-Servicefrontend-client',
-			'Auth-Keysimplerestapi',
-			'Content-Typeapplication/x-www-form-urlencoded',
+			'Client-Service:frontend-client',
+			'Auth-Key:simplerestapi',
+			'Content-Type:application/x-www-form-urlencoded',
 			$headers
 		));
 	}
@@ -42,6 +42,7 @@ function callAPI($method, $url, $data, $headers = false)
 
 	// EXECUTE:
 	$result = curl_exec($curl);
+
 	if (!$result) {
 		die("Connection Failure");
 	}
