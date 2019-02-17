@@ -45,15 +45,15 @@
 
             $.ajax({
                 type: "POST",
-                url: "<?php echo base_url('login/login_validation') ?>",
+                url: "<?php echo base_url('login/login_validation')?>",
                 dataType: "JSON",
-                data: {user_name: user_name, user_pass: user_pass},
+                data: {username: user_name, password: user_pass},
                 success: function (data) {
                     if ($.isEmptyObject(data.error)) {
                         $("#lusername_error").html("");
                         $("#lpassword_error").html("");
 
-                        window.location.href = data.redirect;
+                        //window.location.href = "<?php //echo base_url('admin');?>//";
 
                     } else {
                         $("#lusername_error").html(data.error.user_name);
