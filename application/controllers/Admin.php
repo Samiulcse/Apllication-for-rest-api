@@ -24,8 +24,6 @@ class Admin extends CI_Controller
         $this->load->view('backend/template/footer');
     }
 
-
-
     private function have_session_user_data()
     {
         if ($this->session->has_userdata('username') && $this->session->has_userdata('id')) {
@@ -52,11 +50,11 @@ class Admin extends CI_Controller
 
         $make_call = callAPI('GET', $url, false, $headers);
 
-        $data['books']= json_decode($make_call, true);
+        $data['books'] = json_decode($make_call, true);
 
         $this->load->view('backend/template/header', $data);
         $this->load->view('backend/master');
-        $this->load->view('backend/allbooks',$data);
+        $this->load->view('backend/allbooks', $data);
         $this->load->view('backend/template/footer');
     }
 
@@ -66,7 +64,7 @@ class Admin extends CI_Controller
 
         $this->load->view('backend/template/header', $data);
         $this->load->view('backend/master');
-        $this->load->view('backend/addbook',$data);
+        $this->load->view('backend/addbook', $data);
         $this->load->view('backend/template/footer');
     }
 
@@ -75,12 +73,11 @@ class Admin extends CI_Controller
         $userid = 'User-ID:' . $this->session->userdata('id');
         $Authorization = 'Authorization:' . $this->session->userdata('token');
 
-
         $url = 'http://localhost/CodeigniterRESTAPI/book/create';
 
-        $book_info=[
-          'title'=>$this->input->post('title'),
-          'author'=>$this->input->post('author')
+        $book_info = [
+            'title' => $this->input->post('title'),
+            'author' => $this->input->post('author'),
         ];
 
         $headers = [
@@ -93,12 +90,11 @@ class Admin extends CI_Controller
 
         $make_call = callAPI('POST', $url, http_build_query($book_info), $headers);
 
-        $response= json_decode($make_call, true);
+        $response = json_decode($make_call, true);
 
-        if ($response){
+        if ($response) {
             redirect(base_url('admin/book'));
         }
-
 
     }
 
@@ -107,11 +103,10 @@ class Admin extends CI_Controller
         $userid = 'User-ID:' . $this->session->userdata('id');
         $Authorization = 'Authorization:' . $this->session->userdata('token');
 
-
-        $url = 'http://localhost/CodeigniterRESTAPI/book/delete/';
-
         $id = $this->uri->segment(3);
 
+        $url = 'http://localhost/CodeigniterRESTAPI/book/delete/'.$id;
+        
         $headers = [
             $userid,
             $Authorization,
@@ -120,24 +115,32 @@ class Admin extends CI_Controller
             'Content-Type:application/x-www-form-urlencoded',
         ];
 
-        $make_call = callAPI('DELETE', $url,$id, $headers);
+        $ch = curl_init();
 
-        $response= json_decode($make_call, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        
+
+        $result_e = curl_exec($ch);
+
+        exit;
+
+        $make_call = callAPI('DELETE', $url, false ,$headers);
+
+        $response = json_decode($make_call, true);
 
         print_r($response);
 
         exit;
 
-        if ($response){
+        if ($response) {
             redirect(base_url('admin/book'));
         }
 
-
     }
-
-
-
-
 
     public function logout()
     {
@@ -162,7 +165,7 @@ class Admin extends CI_Controller
             $session_data = array(
                 'id',
                 'token',
-                'username'
+                'username',
             );
 
             $this->session->unset_userdata($session_data);
