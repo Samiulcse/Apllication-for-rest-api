@@ -53,7 +53,7 @@
                         $("#lusername_error").html("");
                         $("#lpassword_error").html("");
 
-                        //window.location.href = "<?php //echo base_url('admin');?>//";
+                        window.location.href = data.redirect;
 
                     } else {
                         $("#lusername_error").html(data.error.user_name);

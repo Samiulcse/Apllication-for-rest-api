@@ -4,135 +4,103 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class Login extends CI_Controller
 {
 
-	public function __construct()
-	{
-		parent::__construct();
+    public function __construct()
+    {
+        parent::__construct();
 
-//		$this->load->model('Login_model', 'auth_model', true);
+        if ($this->have_session_user_data()) {
+            redirect(base_url('admin'));
+        }
 
-		if ($this->uri->segment(2) == 'logout') {
-			$this->logout();
-		} else {
-			$this->have_session_user_data();
-		}
+    }
 
-	}
+    private function have_session_user_data()
+    {
+        if ($this->session->has_userdata('username') && $this->session->has_userdata('id')) {
+            return true;
+        }
+    }
 
-	private function have_session_user_data()
-	{
+    public function index()
+    {
+        $data['title'] = "User Login";
 
-		if ($this->session->has_userdata('user_name') && $this->session->has_userdata('user_email')) {
-			redirect(base_url('Admin'));
-		}
-	}
+        $this->load->view('backend/login/header', $data);
+        $this->load->view('backend/login/login');
+        $this->load->view('backend/login/footer');
 
-	public function index()
-	{
-		$data['title'] = "User Login";
+    }
 
-		$this->load->view('backend/login/header', $data);
-		$this->load->view('backend/login/login');
-		$this->load->view('backend/login/footer');
+    public function login_validation()
+    {
 
-	}
+        $config = array(
+            array(
+                'field' => 'username',
+                'label' => 'Username',
+                'rules' => 'trim|xss_clean|required',
+                'errors' => array(
+                    'required' => 'You have not provided %s.',
+                ),
+            ),
+            array(
+                'field' => 'password',
+                'label' => 'Password',
+                'rules' => 'required',
+                'errors' => array(
+                    'required' => 'You have not provided %s.',
+                ),
+            ),
+        );
 
-	public function login_validation()
-	{
+        $this->form_validation->set_rules($config);
 
-		$config = array(
-			array(
-				'field' => 'username',
-				'label' => 'Username',
-				'rules' => 'trim|xss_clean|required',
-				'errors' => array(
-					'required' => 'You have not provided %s.',
-				),
-			),
-			array(
-				'field' => 'password',
-				'label' => 'Password',
-				'rules' => 'required',
-				'errors' => array(
-					'required' => 'You have not provided %s.',
-				),
-			),
-		);
+        if ($this->form_validation->run()) {
 
-		$this->form_validation->set_rules($config);
+            $user_name = $this->input->post('username');
+            $user_pass = $this->input->post('password');
 
-		if ($this->form_validation->run()) {
-			$user_name = $this->input->post('username');
-//			$user_pass = sha1($this->input->post('password'));
-			$user_pass = $this->input->post('password');
-
-			$data_array = array(
-				"username" => $user_name,
-				"password" => $user_pass
-			);
-
-			$make_call = callAPI('POST', 'http://localhost/CodeigniterRESTAPI/auth/login/', json_encode($data_array), false);
-			if(json_encode($data_array))
-				print_r(json_encode($make_call));
-
-			exit;
-
-			$response = json_decode($make_call, true);
-			$errors = $response['response']['errors'];
-			$data = $response['response']['data'][0];
+            $data_array = array(
+                "username" => $user_name,
+                "password" => $user_pass
+            );
+            $headers = [
+                'Client-Service:frontend-client',
+                'Auth-Key:simplerestapi',
+                'Content-Type:application/x-www-form-urlencoded',
+            ];
 
 
-			exit;
+            $url = "http://localhost/CodeigniterRESTAPI/auth/login/";
 
-			if ($user_id) {
-				if ($this->set_session_data_user_info($user_id)) {
-					echo json_encode(['redirect' => base_url('admin')]);
-				}
-			} else {
-				$error_message['login_error'] = "Username or Password didn't match";
-				echo json_encode(['error' => $error_message]);
-			}
+            $make_call  = callAPI('POST', $url, http_build_query($data_array), $headers);
 
-		} else {
+            $response = json_decode($make_call, true);
 
-			$errors['user_name'] = form_error('user_name') ? form_error('user_name') : '';
-			$errors['user_pass'] = form_error('user_pass') ? form_error('user_pass') : '';
-			echo json_encode(['error' => $errors]);
+            if ($response) {
+                $this->set_session_data_user_info($response,$user_name);
+                echo json_encode(['redirect' => base_url('admin')]);
+            } else {
+                $error_message['login_error'] = "Username or Password didn't match";
+                echo json_encode(['error' => $error_message]);
+            }
 
-		}
+        } else {
 
-	}
+            $errors['user_name'] = form_error('user_name') ? form_error('user_name') : '';
+            $errors['user_pass'] = form_error('user_pass') ? form_error('user_pass') : '';
+            echo json_encode(['error' => $errors]);
 
-	// set session data
-	private function set_session_data_user_info($user_id)
-	{
-		$current_user_data = $this->auth_model->get_current_user_data($user_id);
-		if ($current_user_data) {
-			$session_data = array(
-				'user_name' => $current_user_data[0]->username,
-				'user_email' => $current_user_data[0]->email,
-				'user_id' => $current_user_data[0]->id,
-			);
-			$this->session->set_userdata($session_data);
-			return true;
-		} else {
-			redirect(base_url());
-		}
+        }
 
-	}
+    }
 
-	// logout user
+    // set session data
+    private function set_session_data_user_info($response,$user_name)
+    {
+        $response['username']=$user_name;
+        $this->session->set_userdata($response);
+        return true;
+    }
 
-	public function logout()
-	{
-
-		$session_data = array(
-			'user_name',
-			'user_email',
-			'user_id',
-		);
-
-		$this->session->unset_userdata($session_data);
-
-		return redirect(base_url());
-	}
 }
