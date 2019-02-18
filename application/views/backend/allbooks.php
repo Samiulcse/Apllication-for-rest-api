@@ -7,22 +7,8 @@
                     <div class="header">
                         <h2>
                             All Books
+                            <a href="<?php echo base_url('admin/create')?>" class="pull-right btn btn-primary">Add New Book</a>
                         </h2>
-                        <ul class="header-dropdown m-r--5">
-                            <li class="dropdown">
-                                <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown"
-                                   role="button" aria-haspopup="true" aria-expanded="false">
-                                    <i class="material-icons">more_vert</i>
-                                </a>
-                                <ul class="dropdown-menu pull-right">
-                                    <li><a href="javascript:void(0);" class=" waves-effect waves-block">Action</a></li>
-                                    <li><a href="javascript:void(0);" class=" waves-effect waves-block">Another
-                                            action</a></li>
-                                    <li><a href="javascript:void(0);" class=" waves-effect waves-block">Something else
-                                            here</a></li>
-                                </ul>
-                            </li>
-                        </ul>
                     </div>
                     <div class="body">
                         <div class="table-responsive">
@@ -50,7 +36,10 @@
                                         <td class="sorting_1"><?php echo $book['id'];?></td>
                                         <td><?php echo $book['title'];?></td>
                                         <td><?php echo $book['author'];?></td>
-                                        <td></td>
+                                        <td>
+                                            <a href="<?php echo base_url() ?>admin/update/<?php echo $book['id']; ?>" class="btn btn-primary">Update</a>
+                                            <a href="#" id="<?php echo $book['id']; ?>" class="btn delete btn-danger ">Delete</a>
+                                        </td>
                                     </tr>
                                     <?php }?>
                                     </tbody>
@@ -65,3 +54,20 @@
         <!-- #END# Exportable Table -->
     </div>
 </section>
+
+<script>
+    $(document).ready(function () {
+        $(".delete").click(function (e) {
+            var id=$(this).attr("id");
+
+            if(confirm("Are you sure you want to delete this?"))
+            {
+                window.location="<?php echo base_url(); ?>admin/delete/"+id;
+            }
+            else
+            {
+                return false;
+            }
+        });
+    });
+</script>

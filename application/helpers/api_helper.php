@@ -16,7 +16,11 @@ function callAPI($method, $url, $data, $headers = false)
             if ($data)
                 curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
             break;
-
+        case "DELETE":
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+            if ($data)
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            break;
     }
 
     // OPTIONS:
