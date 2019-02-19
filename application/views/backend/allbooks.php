@@ -37,7 +37,7 @@
                                         <td><?php echo $book['title'];?></td>
                                         <td><?php echo $book['author'];?></td>
                                         <td>
-                                            <a href="<?php echo base_url() ?>admin/update/<?php echo $book['id']; ?>" class="btn btn-primary">Update</a>
+                                            <a href="<?php echo base_url() ?>admin/detail/<?php echo $book['id']; ?>" class="btn btn-primary">Update</a>
                                             <a href="#" id="<?php echo $book['id']; ?>" class="btn delete btn-danger ">Delete</a>
                                         </td>
                                     </tr>

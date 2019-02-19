@@ -22,7 +22,6 @@ function callAPI($method, $url, $data, $headers = false)
             break;
         case "DELETE":
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
             break;
     }
 

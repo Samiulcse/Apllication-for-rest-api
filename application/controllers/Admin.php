@@ -18,10 +18,14 @@ class Admin extends CI_Controller
     {
         $data['title'] = "Admin Panel";
 
-        $this->load->view('backend/template/header', $data);
-        $this->load->view('backend/master');
-        $this->load->view('backend/dashboard');
-        $this->load->view('backend/template/footer');
+        $data['header'] = $this->load->view('backend/template/header', $data, true);
+        $data['dashboard'] = $this->load->view('backend/dashboard', '', true);
+        $data['footer'] = $this->load->view('backend/template/footer', '', true);
+
+        $this->load->view('backend/master', $data);
+
+        // $this->load->view('backend/dashboard');
+        // $this->load->view('backend/template/footer');
     }
 
     private function have_session_user_data()
@@ -64,7 +68,7 @@ class Admin extends CI_Controller
 
         $this->load->view('backend/template/header', $data);
         $this->load->view('backend/master');
-        $this->load->view('backend/addbook', $data);
+        $this->load->view('backend/addbook');
         $this->load->view('backend/template/footer');
     }
 
@@ -98,15 +102,17 @@ class Admin extends CI_Controller
 
     }
 
-    public function delete()
+    public function detail()
     {
+        $data['title'] = "Add New Book";
+
         $userid = 'User-ID:' . $this->session->userdata('id');
         $Authorization = 'Authorization:' . $this->session->userdata('token');
 
         $id = $this->uri->segment(3);
 
-        $url = 'http://localhost/CodeigniterRESTAPI/book/delete/'.$id;
-        
+        $url = 'http://localhost/CodeigniterRESTAPI/book/detail/' . $id;
+
         $headers = [
             $userid,
             $Authorization,
@@ -115,26 +121,76 @@ class Admin extends CI_Controller
             'Content-Type:application/x-www-form-urlencoded',
         ];
 
-        $ch = curl_init();
+        $make_call = callAPI('GET', $url, false, $headers);
 
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        $data['book'] = json_decode($make_call, true);
+
+        $data['id'] = $id;
+
+        $this->load->view('backend/template/header', $data);
+        $this->load->view('backend/master');
+        $this->load->view('backend/update', $data);
+        $this->load->view('backend/template/footer');
+
+    }
+
+    public function update()
+    {
+        $data['title'] = "Add New Book";
+
+        $userid = 'User-ID:' . $this->session->userdata('id');
+        $Authorization = 'Authorization:' . $this->session->userdata('token');
+
+        $id = $this->uri->segment(3);
+
+        $book_info = [
+            'title' => $this->input->post('title'),
+            'author' => $this->input->post('author'),
+        ];
+
+        $url = 'http://localhost/CodeigniterRESTAPI/book/update/' . $id;
+
+        $headers = [
+            $userid,
+            $Authorization,
+            'Client-Service:frontend-client',
+            'Auth-Key:simplerestapi',
+            'Content-Type:application/x-www-form-urlencoded',
+        ];
+        
+        $make_call = callAPI('PUT', $url, http_build_query($book_info), $headers);
+
+        $response = json_decode($make_call,true);
+
+        if($response['status']==200){
+            redirect(base_url('admin/book'));
+        }else{
+            echo $response['message'];
+        }
         
 
-        $result_e = curl_exec($ch);
+    }
 
-        exit;
+    public function delete()
+    {
+        $userid = 'User-ID:' . $this->session->userdata('id');
+        $Authorization = 'Authorization:' . $this->session->userdata('token');
 
-        $make_call = callAPI('DELETE', $url, false ,$headers);
+        $id = $this->uri->segment(3);
 
-        $response = json_decode($make_call, true);
+        $url = 'http://localhost/CodeigniterRESTAPI/book/delete/' . $id;
 
-        print_r($response);
+        $headers = [
+            $userid,
+            $Authorization,
+            'Client-Service:frontend-client',
+            'Auth-Key:simplerestapi',
+            'Content-Type:application/x-www-form-urlencoded',
+        ];
 
-        exit;
+        $make_call = callAPI('DELETE', $url, false, $headers);
+
+        $response = json_decode($make_call);
 
         if ($response) {
             redirect(base_url('admin/book'));

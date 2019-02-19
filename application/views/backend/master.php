@@ -1,4 +1,9 @@
+<?php 
+if(isset($header)){
+    echo $header;
+}
 
+?>
 <!-- Page Loader -->
 <div class="page-loader-wrapper">
     <div class="loader">
@@ -97,3 +102,13 @@
     <!-- #END# Left Sidebar -->
 </section>
 
+<?php 
+
+if(isset($dashboard)){
+    echo $dashboard;
+}
+
+if(isset($footer)){
+    echo $footer;
+}
+?>
